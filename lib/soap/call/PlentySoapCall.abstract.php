@@ -71,7 +71,7 @@ abstract class PlentySoapCall
 	{
 		$this->getLogger()->crit("Exception : ".$e->getMessage());
 		
-		// TODO check on http 500 
+		// TODO check on http 500
 		
 		/*
 		 * check if token is valid
