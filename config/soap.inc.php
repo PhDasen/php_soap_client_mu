@@ -1,27 +1,25 @@
 <?php
 
-
-/* 
+/*
  * wsdl url
- * 
+ *
  * please enter your own wsdl url
  */
-define('WSDL_URL', 'http://plenty-soap-cluster.plenty-test.de/plenty/api/soap/version110/?xml');
+define ( 'WSDL_URL', 'http://17761fc1f5.plentymarkets.net/plenty/api/soap/version115/?xml' );
 
 /*
  * soap user name
- * 
+ *
  * please enter your own user
  */
-define('SOAP_USER', 'soap_client_test');
+define ( 'SOAP_USER', 'soap_client_test' );
 
 /*
  * soap password
- * 
+ *
  * please enter your own password
  */
-define('SOAP_PASSWORD', '!Your_PWD!:');
-
+define ( 'SOAP_PASSWORD', 'MU770219mu.' );
 
 /*
  * the following params are used from PlentymarketsSoapGenerator.class.php
@@ -30,31 +28,31 @@ define('SOAP_PASSWORD', '!Your_PWD!:');
 /*
  * class prefix
  */
-define('SOAP_CLASS_PREFIX', '');
+define ( 'SOAP_CLASS_PREFIX', '' );
 
 /*
  * output base dir
  */
-define('SOAP_OUTPUT_BASE_DIR', ROOT.'lib/soap');
+define ( 'SOAP_OUTPUT_BASE_DIR', ROOT . 'lib/soap' );
 
 /*
  * sub dir name for models
  */
-define('SOAP_MODEL_DIR', 'model');
+define ( 'SOAP_MODEL_DIR', 'model' );
 
 /*
  * sub dir name for controller
-*/
-define('SOAP_CONTROLLER_DIR', 'controller');
+ */
+define ( 'SOAP_CONTROLLER_DIR', 'controller' );
 
 /*
  * controller class name
  */
-define('SOAP_CONTROLLER_CLASS_NAME', 'PlentySoap');
+define ( 'SOAP_CONTROLLER_CLASS_NAME', 'PlentySoap' );
 
 /*
  * autoloader for all soap model classes
-*/
-require_once ROOT.'lib/soap/autoloader/SoapModelLoader.fnc.php';
+ */
+require_once ROOT . 'lib/soap/autoloader/SoapModelLoader.fnc.php';
 
 ?>
