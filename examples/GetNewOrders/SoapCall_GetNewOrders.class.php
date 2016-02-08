@@ -25,14 +25,16 @@ class SoapCall_GetNewOrders extends PlentySoapCall
 			/*
 			 * do soap call
 			 */
-			$response	=	$this->getPlentySoap()->GetCountriesOfDelivery(new PlentySoapRequest_GetCountriesOfDelivery);
+			$PlentySoapRequest_SearchOrders = new PlentySoapRequest_SearchOrders;
+			$PlentySoapRequest_SearchOrders->OrderCreatedFrom = time() - 3600;
+			$response	=	$this->getPlentySoap()->SearchOrders($PlentySoapRequest_SearchOrders);
 			
 			/*
 			 * check soap response
 			 */
 			if( $response->Success == true )
 			{
-				$this->getLogger()->debug(__FUNCTION__.' Request Success - : GetCountriesOfDelivery');
+				$this->getLogger()->debug(__FUNCTION__.' Request Success - : SearchOrders');
 				
 				/*
 				 * parse and save the data
@@ -53,26 +55,27 @@ class SoapCall_GetNewOrders extends PlentySoapCall
 	/**
 	 * Parse the response
 	 * 
-	 * @param PlentySoapResponse_GetCountriesOfDelivery $response
+	 * @param PlentySoapResponse_SearchOrders $response
 	 */
 	private function parseResponse($response)
 	{
-		if(is_array($response->CountriesOfDelivery->item))
+		if(is_array($response->Orders->item))
 		{
 			/*
 			 * If more than one country of delivery
 			 */
-			foreach ($response->CountriesOfDelivery->item as $countryOfDelivery)
+			foreach ($response->Orders->item as $Item)
 			{
-				$this->saveInDatabase($countryOfDelivery);
+				$this->getLogger()->debug('Ordertimestamp: '.$Item->OrderHead->OrderTimestamp);
+			
 			}
 		}
 		/*
 		 * only one country of delivery 
 		 */
-		elseif (is_object($response->CountriesOfDelivery->item))
+		elseif (is_object($response->Orders->item->OrderHead))
 		{
-			$this->saveInDatabase($response->CountriesOfDelivery->item);
+			$this->getLogger()->debug('Ordertimestamp: '.$OrderHead->OrderTimestamp);
 		}
 	}
 	
