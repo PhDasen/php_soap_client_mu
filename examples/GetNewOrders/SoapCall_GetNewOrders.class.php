@@ -26,7 +26,7 @@ class SoapCall_GetNewOrders extends PlentySoapCall
 			 * do soap call
 			 */
 			$PlentySoapRequest_SearchOrders = new PlentySoapRequest_SearchOrders;
-			$PlentySoapRequest_SearchOrders->OrderCreatedFrom = time() - 3600;
+			$PlentySoapRequest_SearchOrders->OrderCreatedFrom = time() - 360000000;
 			$response	=	$this->getPlentySoap()->SearchOrders($PlentySoapRequest_SearchOrders);
 			
 			/*
@@ -62,38 +62,99 @@ class SoapCall_GetNewOrders extends PlentySoapCall
 		if(is_array($response->Orders->item))
 		{
 			/*
-			 * If more than one country of delivery
+			 * Step through each order item
 			 */
 			foreach ($response->Orders->item as $Item)
 			{
-				$this->getLogger()->debug('Ordertimestamp: '.$Item->OrderHead->OrderTimestamp);
-			
+				
+				$this->saveInDatabase($Item);
 			}
 		}
 		/*
-		 * only one country of delivery 
+		 * Orders not Returned as Array
 		 */
-		elseif (is_object($response->Orders->item->OrderHead))
+		else
 		{
-			$this->getLogger()->debug('Ordertimestamp: '.$OrderHead->OrderTimestamp);
+			$this->getLogger()->debug('Order Items not in Array');
 		}
 	}
 	
 	/**
 	 * Save the data in the database
 	 * 
-	 * @param PlentySoapObject_GetCountriesOfDelivery $countryOfDelivery
+	 * @param PlentySoapObject_SearchOrders $Item
 	 */
-	private function saveInDatabase($countryOfDelivery)
+	private function saveInDatabase($Item)
 	{
-		$query = 'REPLACE INTO `plenty_countries_of_delivery` '.DBUtils::buildInsert(	array(	'country_id'	=>	$countryOfDelivery->CountryID,
-																								'active'		=>	$countryOfDelivery->CountryActive,
-																								'country_name'	=>	$countryOfDelivery->CountryName,
-																								'iso_code_2'	=>	$countryOfDelivery->CountryISO2));
+		$query = 'REPLACE INTO `plenty_OrderHead` '.DBUtils::buildInsert(	array(	'OrderID'					=>	$Item->OrderHead->OrderID,
+																					'Currency'					=>	$Item->OrderHead->Currency,
+																					'CustomerID'				=>	$Item->OrderHead->CustomerID,
+																					'CustomerReference'			=>	$Item->OrderHead->CustomerReference,
+																					'DeliveryAddressID'			=>	$Item->OrderHead->DeliveryAddressID,
+																					'DoneTimestamp'				=>	$Item->OrderHead->DoneTimestamp,
+																					'DunningLevel'				=>	$Item->OrderHead->DunningLevel,
+																					'EbaySellerAccount'			=>	$Item->OrderHead->EbaySellerAccount,
+																					'EstimatedTimeOfShipment'	=>	$Item->OrderHead->EstimatedTimeOfShipment,
+																					'ExchangeRatio'				=>	$Item->OrderHead->ExchangeRatio,
+																					'ExternalOrderID'			=>	$Item->OrderHead->ExternalOrderID,
+																					'Invoice'					=>	$Item->OrderHead->Invoice,
+																					'IsNetto'					=>	$Item->OrderHead->IsNetto,
+																					'LastUpdate'				=>	$Item->OrderHead->LastUpdate,
+																					'MethodOfPaymentID'			=>	$Item->OrderHead->MethodOfPaymentID,
+																					'OrderStatus'				=>	$Item->OrderHead->OrderStatus,
+																					'OrderTimestamp'			=>	$Item->OrderHead->OrderTimestamp,
+																					'OrderType'					=>	$Item->OrderHead->OrderType,
+																					'PackageNumber'				=>	$Item->OrderHead->PackageNumber,
+																					'PaidTimestamp'				=>	$Item->OrderHead->PaidTimestamp,
+																					'ParentOrderID'				=>	$Item->OrderHead->ParentOrderID,
+																					'PaymentStatus'				=>	$Item->OrderHead->PaymentStatus,
+																					'ReferrerID'				=>	$Item->OrderHead->ReferrerID,
+																					'RemoteIP'					=>	$Item->OrderHead->RemoteIP,
+																					'ResponsibleID'				=>	$Item->OrderHead->ResponsibleID,
+																					'SalesAgentID'				=>	$Item->OrderHead->SalesAgentID,
+																					'SellerAccount'				=>	$Item->OrderHead->SellerAccount,
+																					'ShippingCosts'				=>	$Item->OrderHead->ShippingCosts,
+																					'ShippingID'				=>	$Item->OrderHead->ShippingID,
+																					'ShippingMethodID'			=>	$Item->OrderHead->ShippingMethodID,
+																					'ShippingProfileID'			=>	$Item->OrderHead->ShippingProfileID,
+																					'StoreID'					=>	$Item->OrderHead->StoreID,
+																					'TotalBrutto'				=>	$Item->OrderHead->TotalBrutto,
+																					'TotalInvoice'				=>	$Item->OrderHead->TotalInvoice,
+																					'TotalNetto'				=>	$Item->OrderHead->TotalNetto,
+																					'TotalVAT'					=>	$Item->OrderHead->TotalVAT,
+																					'WarehouseID'				=>	$Item->OrderHead->WarehouseID));
 		
 		$this->getLogger()->debug(__FUNCTION__.' '.$query);
 		
 		DBQuery::getInstance()->replace($query);
+		
+		if (isset($Item->OrderHead->IncomingPayments))
+		{
+			foreach ($Item->OrderHead->IncomingPayments->item as $ItemIncomingPayments)
+			{
+				$query = 'REPLACE INTO `plenty_OrderHead_IncomingPayments` '.DBUtils::buildInsert(	array(	'ID'			=>	$ItemIncomingPayments->ID,
+																											'ReferenceID'	=>	$ItemIncomingPayments->ReferenceID,
+																											'OrderID'		=>	$Item->OrderHead->OrderID));
+				
+				$this->getLogger()->debug(__FUNCTION__.' '.$query);
+				
+				DBQuery::getInstance()->replace($query);
+			}
+		}
+		
+		if (isset($Item->OrderHead->IncomingPayments))
+		{
+			foreach ($Item->OrderHead->IncomingPayments->item as $ItemIncomingPayments)
+			{
+				$query = 'REPLACE INTO `plenty_OrderHead_IncomingPayments` '.DBUtils::buildInsert(	array(	'ID'			=>	$ItemIncomingPayments->ID,
+						'ReferenceID'	=>	$ItemIncomingPayments->ReferenceID,
+						'OrderID'		=>	$Item->OrderHead->OrderID));
+		
+				$this->getLogger()->debug(__FUNCTION__.' '.$query);
+		
+				DBQuery::getInstance()->replace($query);
+			}
+		}
 	}
 }
 
